@@ -6,10 +6,9 @@ app.controller("MainCtrl", function($scope, $interval) {
   $scope.transactions = [ ];
   //Websocket to stellar
   //TODO: convert to factory
-  var ws = new WebSocket("ws://live.stellar.org:9001");
+  var ws = new WebSocket("wss://live.stellar.org:9001");
 
    ws.onopen = function() {
-      console.log('OPEN');
       var msg = {
           command: "subscribe",
           streams: [ "transactions_rt" ]
