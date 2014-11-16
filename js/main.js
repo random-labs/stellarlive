@@ -1,48 +1,58 @@
-var app = angular.module("stellarFire", ["firebase","nvd3ChartDirectives"]);
+var app = angular.module("stellarFire", ["nvd3ChartDirectives"]);
 
-app.controller("MainCtrl", function($scope, $firebase, $interval) {
-  var ref = new Firebase("https://stellarlive.firebaseio.com/");
-  var sync = $firebase(ref);
-  // create a synchronized array for use in our HTML code
-  var transactions = sync.$asArray();
+app.controller("MainCtrl", function($scope, $interval) {
+  //How many data points to keep
+  var limit = 15;
+  $scope.transactions = [ ];
+  //Websocket to stellar
+  //TODO: convert to factory
+  var ws = new WebSocket("ws://live.stellar.org:9001");
 
+   ws.onopen = function() {
+      console.log('OPEN');
+      var msg = {
+          command: "subscribe",
+          streams: [ "transactions_rt" ]
+        }
+
+
+      ws.send(JSON.stringify(msg));
+    };
+
+    ws.onmessage = function(message) {
+        msg = JSON.parse(message.data);
+        if(msg.engine_result_code === 0 && msg.transaction.TransactionType === "Payment"){
+            var transactionData = {
+              "transactionAmount": msg.transaction.Amount,
+              "transactionFee": msg.transaction.Fee,
+              "transactionHash": msg.transaction.hash.substring(0, 6),
+              "timestamp": Math.floor(new Date().getTime()/1000)
+            };
+
+            $scope.transactions.push(transactionData);
+            $scope.transactions = $scope.transactions.slice(-limit);
+        }
+
+    };
 
   $interval(function() {
-
-    transactions.$loaded().then(function() {
-      $scope.transactions = transactions.slice(-10);
       $scope.plotData = [
                           {
                             "key":"Series 1",
-                             "values":[]
-                          },
-                          {
-                            "key":"Series 2",
+                            "area": true,
                              "values":[]
                           }
-
                          ]
-
-       for (var i = 0; i < transactions.length; i++) {
-         var transaction = [ transactions[i].timestamp ,transactions[i].transactionAmount/1000000]
-         var fee = [ transactions[i].timestamp ,transactions[i].transactionFee]
-        //  {
-        //                     "x":transactions[i].transactionAmount/1000000,
-        //                     "y":transactions[i].transactionFee,
-        //                     "size":1
-        //                   }
-          if($scope.plotData[0].values.length >=10){
+       for (var i = 0; i < $scope.transactions.length; i++) {
+         var transaction = [ $scope.transactions[i].timestamp ,$scope.transactions[i].transactionAmount/1000000]
+          if($scope.plotData[0].values.length >=limit){
               $scope.plotData[0].values.push(transaction);
-              $scope.plotData[0].values = $scope.plotData[0].values.slice(-10);
+              $scope.plotData[0].values = $scope.plotData[0].values.slice(-limit);
           }else{
             $scope.plotData[0].values.push(transaction);
-            // $scope.plotData[1].values.push(fee);
           }
        }
-    });
 
   }, 100/10);
-
-
 
 });
