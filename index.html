@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html ng-app="stellarFire" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <!-- AngularJS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.19/angular.min.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+
+  <!-- AngularFire -->
+  <script src="https://cdn.firebase.com/libs/angularfire/0.8.2/angularfire.min.js"></script>
+
+  <!-- d3 -->
+  <script src="bower_components/d3/d3.js"></script>
+  <script src="bower_components/nvd3/nv.d3.js"></script>
+  <script src="bower_components/angularjs-nvd3-directives/dist/angularjs-nvd3-directives.js"></script>
+
+  <!-- My Script -->
+  <script src="js/main.js"></script>
+
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="bower_components/nvd3/nv.d3.css"/>
+</head>
+<body ng-controller="MainCtrl">
+  <div class="container">
+    <div class="row">
+      <h1>Stellar</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+    <!--   <nvd3-scatter-chart
+              data="plotData"
+              id="exampleId"
+              width="600"
+              height="500"
+              yAxisTickFormat="yAxisTickFormatFunction()"
+              xAxisTickFormat="xAxisTickFormatFunction()">
+            <svg></svg>
+      </nvd3-scatter-chart> -->
+      <nvd3-line-chart
+    	data="exampleData"
+        id="exampleId"
+        xAxisTickFormat="xAxisTickFormatFunction()"
+        yAxisTickFormat="yAxisTickFormatFunction()"
+        width="600"
+        height="400"
+        showXAxis="true"
+        showYAxis="true">
+        	<svg></svg>
+
+    </div>
+    <div class="col-md-6">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Transaction Price</th>
+            <th>Transaction Fee</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="transaction in transactions">
+            <td>{{transaction.transactionAmount/1000000}}</td>
+            <td>{{transaction.transactionFee}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
